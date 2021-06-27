@@ -37,7 +37,7 @@ func New(l *time.Location) Calendar {
 
 // For the day, add value and additional data.
 func (c *Calendar) Add(day time.Time, value int, data interface{}) {
-	day = day.In(c.location).Truncate(time.Hour * 24)
+	day = day.In(c.location)
 
 	dy := day.Year()
 	y := c.Years[dy]
@@ -51,6 +51,10 @@ func (c *Calendar) Add(day time.Time, value int, data interface{}) {
 	}
 
 	d := y[day.YearDay()-1]
+	if d.Date.IsZero() {
+		y, m, dd := day.Date()
+		d.Date = time.Date(y, m, dd, 0, 0, 0, 0, day.Location())
+	}
 	d.Date = day
 	d.Value += value
 	if data != nil {
